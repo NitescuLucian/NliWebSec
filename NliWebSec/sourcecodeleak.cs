@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -14,7 +15,7 @@ namespace NliWebSec
         static void Main(string[] args)
         {
             List<string> mytargets = new List<string>();
-
+            HttpWebResponse response = null;
             string html = null;
             Console.WriteLine("Please enter the root url of your target: ");
             string url = Console.ReadLine();
@@ -31,32 +32,43 @@ namespace NliWebSec
             }
             // reading the html response from the target
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
-            HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-            if (response.StatusCode == HttpStatusCode.OK)
+            try
             {
-                Stream receiveStream = response.GetResponseStream();
-                StreamReader readStream = null;
-
-                if (response.CharacterSet == null)
+                response = (HttpWebResponse)request.GetResponse();
+            }
+            catch (System.Net.WebException ex)
+            {
+                Debug.WriteLine("Exception Message: " + ex.Message);
+            }
+            if (response != null)
+            {
+                if (response.StatusCode == HttpStatusCode.OK)
                 {
-                    readStream = new StreamReader(receiveStream);
-                }
-                else
-                {
-                    readStream = new StreamReader(receiveStream, Encoding.GetEncoding(response.CharacterSet));
-                }
+                    Stream receiveStream = response.GetResponseStream();
+                    StreamReader readStream = null;
 
-                html = readStream.ReadToEnd();
+                    if (response.CharacterSet == null)
+                    {
+                        readStream = new StreamReader(receiveStream);
+                    }
+                    else
+                    {
+                        readStream = new StreamReader(receiveStream, Encoding.GetEncoding(response.CharacterSet));
+                    }
 
-                response.Close();
-                readStream.Close();
+                    html = readStream.ReadToEnd();
+
+                    response.Close();
+                    readStream.Close();
+                }
             }
             //searching for urls / paths in the html response of the target
             foreach (Match item in Regex.Matches(html, @"(http|ftp|https):\/\/([\w\-_]+(?:(?:\.[\w\-_]+)+))([\w\-\.,@?^=%&amp;:/~\+#]*[\w\-\@?^=%&amp;/~\+#])?"))
             {
                 string draft = item.Value;
                 //the role of this if is to filter false positives and 3rd parties resources from crawl
-                if (draft.StartsWith(url)) { 
+                if (draft.StartsWith(url))
+                {
                     mytargets.Add(item.Value);
                 }
             }
@@ -66,16 +78,26 @@ namespace NliWebSec
             {
                 for (int i = 0; i < lvl; i++)
                 {
-                    foreach (string item in mytargets)
+                    foreach (string item1 in mytargets)
                     {
-                        url = item;
-                        HttpWebRequest request1 = (HttpWebRequest)WebRequest.Create(url);
-                        HttpWebResponse response1 = (HttpWebResponse)request1.GetResponse();
-                        if (response.StatusCode == HttpStatusCode.OK)
-                        {
-                            Stream receiveStream = response1.GetResponseStream();
-                            StreamReader readStream = null;
 
+                        Stream receiveStream = null;
+                        HttpWebResponse response1 = null;
+                        url = item1;
+                        HttpWebRequest request1 = (HttpWebRequest)WebRequest.Create(url);
+                        try
+                        {
+                            response1 = (HttpWebResponse)request1.GetResponse();
+                        }
+                        catch (System.Net.WebException ex)
+                        {
+                            Debug.WriteLine("Exception Message: " + ex.Message);
+                        }
+
+                        if (response1 != null)
+                        {
+                            receiveStream = response1.GetResponseStream();
+                            StreamReader readStream = null;
                             if (response.CharacterSet == null)
                             {
                                 readStream = new StreamReader(receiveStream);
@@ -87,23 +109,24 @@ namespace NliWebSec
 
                             html = readStream.ReadToEnd();
 
-                            response.Close();
+                            response1.Close();
                             readStream.Close();
                         }
-                        //searching for urls / paths in the html response of the target
-                        foreach (Match item1 in Regex.Matches(html, @"(http|ftp|https):\/\/([\w\-_]+(?:(?:\.[\w\-_]+)+))([\w\-\.,@?^=%&amp;:/~\+#]*[\w\-\@?^=%&amp;/~\+#])?"))
+                    }
+                    //searching for urls / paths in the html response of the target
+                    foreach (Match item in Regex.Matches(html, @"(http|ftp|https):\/\/([\w\-_]+(?:(?:\.[\w\-_]+)+))([\w\-\.,@?^=%&amp;:/~\+#]*[\w\-\@?^=%&amp;/~\+#])?"))
+                    {
+                        string draft = item.Value;
+                        //the role of this if is to filter false positives and 3rd parties resources from crawl
+                        if (draft.StartsWith(url))
                         {
-                            string draft = item1.Value;
-                            //the role of this if is to filter false positives and 3rd parties resources from crawl
-                            if (draft.StartsWith(url))
-                            {
-                                mytargets.Add(item1.Value);
-                            }
+                            mytargets.Add(item.Value);
                         }
                     }
                 }
             }
-           
+
+
             for (int i = 0; i < mytargets.Count(); i++)
             {
                 Console.WriteLine(mytargets[i]);
@@ -114,3 +137,4 @@ namespace NliWebSec
         }
     }
 }
+
