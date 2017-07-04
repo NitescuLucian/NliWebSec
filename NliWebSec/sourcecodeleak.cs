@@ -16,7 +16,7 @@ namespace NliWebSec
             List<string> mytargets = new List<string>();
 
             string html = null;
-            Console.WriteLine("Please enter the url of your target: ");
+            Console.WriteLine("Please enter the root url of your target: ");
             string url = Console.ReadLine();
             /*Console.WriteLine("Please enter the level: ");
             int lvl = Convert.ToInt32(Console.ReadLine());
@@ -50,15 +50,17 @@ namespace NliWebSec
             //searching for urls / paths in the html response of the target
             foreach (Match item in Regex.Matches(html, @"(http|ftp|https):\/\/([\w\-_]+(?:(?:\.[\w\-_]+)+))([\w\-\.,@?^=%&amp;:/~\+#]*[\w\-\@?^=%&amp;/~\+#])?"))
             {
-                mytargets.Add(item.Value);
+                string draft = item.Value;
+                //the role of this if is to filter false positives and 3rd parties resources from crawl
+                if (draft.StartsWith(url)) { 
+                    mytargets.Add(item.Value);
+                }
             }
             mytargets.ToArray();
             for (int i = 0; i < mytargets.Count(); i++)
             {
                 Console.WriteLine(mytargets[i]);
             }
-            Console.WriteLine(mytargets);
-
             Console.WriteLine();
             Console.ReadLine();
         }
