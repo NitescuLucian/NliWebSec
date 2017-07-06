@@ -12,6 +12,45 @@ namespace NliWebSec
 {
     class sourcecodeleak
     {
+        //the function
+        public static void stringator(string baseurl, string testaddition)
+        {
+            HttpWebResponse response2 = null;
+            string testfin = testaddition;
+            string urlcha = "example.com";
+            if (baseurl.EndsWith("/"))
+            {
+                urlcha = baseurl;
+                urlcha = urlcha.Remove(urlcha.Length - 1);
+                urlcha = urlcha + testfin;
+            }
+            else
+            {
+                urlcha = baseurl + testfin;
+            }
+            Console.WriteLine(urlcha + " ");
+            HttpWebRequest request1 = (HttpWebRequest)WebRequest.Create(urlcha);
+            request1.Timeout = 400;
+            if (request1 != null)
+            {
+                try
+                {
+                    response2 = (HttpWebResponse)request1.GetResponse();
+                }
+                catch (System.Net.WebException ex)
+                {
+                    Debug.WriteLine("Exception Message: " + ex.Message);
+                }
+                if (response2 != null)
+                {
+                    Console.Write((int)response2.StatusCode);
+                }
+            }
+            Console.WriteLine();
+            Console.ReadLine();
+
+        }
+
         static void Main(string[] args)
         {
             List<string> mytargets = new List<string>();
@@ -20,17 +59,17 @@ namespace NliWebSec
             string html = null;
             Console.WriteLine("Please enter the root url of your target: ");
             string url = Console.ReadLine();
-           // Console.WriteLine("Please enter the level: ");
-           // int lvl = 0;
+            // Console.WriteLine("Please enter the level: ");
+            // int lvl = 0;
             //string line = Console.ReadLine();
-           /* try
-            {
-                lvl = Int32.Parse(line);
-            }
-            catch (FormatException)
-            {
-                Console.WriteLine("\"{0}\" is not an integer! Performing one scan on one level!", line);
-            }*/
+            /* try
+             {
+                 lvl = Int32.Parse(line);
+             }
+             catch (FormatException)
+             {
+                 Console.WriteLine("\"{0}\" is not an integer! Performing one scan on one level!", line);
+             }*/
             // reading the html response from the target
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
             try
@@ -101,41 +140,12 @@ namespace NliWebSec
             //block - keep it to make a function
             for (int i = 0; i < mytargets.Count(); i++)
             {
-                string testfin = ".txt";
-                string urlcha = "example.com";
-                if (mytargets[i].EndsWith("/"))
-                {
-                    urlcha = mytargets[i];
-                    urlcha = urlcha.Remove(urlcha.Length - 1);
-                    urlcha = urlcha + testfin;
-                }
-                else
-                {
-                    urlcha = mytargets[i] + testfin;
-                }
-                Console.WriteLine(urlcha + " ");
-                HttpWebRequest request1 = (HttpWebRequest)WebRequest.Create(urlcha);
-                request1.Timeout = 400;
-                if (request1 != null)
-                {
-                    try
-                    {
-                        response2 = (HttpWebResponse)request1.GetResponse();
-                    }
-                    catch (System.Net.WebException ex)
-                    {
-                        Debug.WriteLine("Exception Message: " + ex.Message);
-                    }
-                    if (response2 != null)
-                    {
-                        Console.Write((int)response2.StatusCode);
-                    }
-                }
-                Console.WriteLine();
-                Console.ReadLine();
-                // end of block
+                string kill = ".txt";
+                stringator(mytargets[i], kill);
             }
+            // end of block
         }
     }
 }
+
 
