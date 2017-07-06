@@ -17,20 +17,10 @@ namespace NliWebSec
         {
             HttpWebResponse response2 = null;
             string testfin = testaddition;
-            string urlcha = "example.com";
-            if (baseurl.EndsWith("/"))
-            {
-                urlcha = baseurl;
-                urlcha = urlcha.Remove(urlcha.Length - 1);
-                urlcha = urlcha + testfin;
-            }
-            else
-            {
-                urlcha = baseurl + testfin;
-            }
+            string urlcha = baseurl + testfin;
             Console.WriteLine(urlcha + " ");
             HttpWebRequest request1 = (HttpWebRequest)WebRequest.Create(urlcha);
-            request1.Timeout = 400;
+            request1.Timeout = 800;
             if (request1 != null)
             {
                 try
@@ -48,7 +38,6 @@ namespace NliWebSec
             }
             Console.WriteLine();
             Console.ReadLine();
-
         }
 
         static void Main(string[] args)
@@ -59,18 +48,6 @@ namespace NliWebSec
             string html = null;
             Console.WriteLine("Please enter the root url of your target: ");
             string url = Console.ReadLine();
-            // Console.WriteLine("Please enter the level: ");
-            // int lvl = 0;
-            //string line = Console.ReadLine();
-            /* try
-             {
-                 lvl = Int32.Parse(line);
-             }
-             catch (FormatException)
-             {
-                 Console.WriteLine("\"{0}\" is not an integer! Performing one scan on one level!", line);
-             }*/
-            // reading the html response from the target
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
             try
             {
@@ -118,7 +95,7 @@ namespace NliWebSec
             {
                 Console.WriteLine(mytargets[i] + " ");
                 HttpWebRequest request1 = (HttpWebRequest)WebRequest.Create(mytargets[i]);
-                request1.Timeout = 400;
+                request1.Timeout = 800;
                 if (request1 != null)
                 {
                     try
@@ -137,13 +114,29 @@ namespace NliWebSec
                 Console.WriteLine();
                 Console.ReadLine();
             }
-            //block - keep it to make a function
-            for (int i = 0; i < mytargets.Count(); i++)
+            //here I will read several files and put them in a string array for further tests
+            string line;
+            List<string> urlman = new List<string>();
+            // Read the file and display it line by line.  
+            System.IO.StreamReader file = new System.IO.StreamReader(@"../../urlman.txt");
+            while ((line = file.ReadLine()) != null)
             {
-                string kill = ".txt";
-                stringator(mytargets[i], kill);
+                urlman.Add(line);
             }
-            // end of block
+            urlman.ToArray();
+            file.Close();
+            // end of read
+            int testno = 0;
+            for (int j = 0; j < urlman.Count(); j++)
+            {
+                for (int i = 0; i < mytargets.Count(); i++)
+                {
+                    string kill = urlman[j];
+                    stringator(mytargets[i], kill);
+                    testno++;
+                }
+            }
+            Console.WriteLine("All tests have been performed. Count: " + testno + ". ");
         }
     }
 }
