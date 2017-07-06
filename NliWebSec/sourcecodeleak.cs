@@ -20,17 +20,17 @@ namespace NliWebSec
             string html = null;
             Console.WriteLine("Please enter the root url of your target: ");
             string url = Console.ReadLine();
-            Console.WriteLine("Please enter the level: ");
-            int lvl = 0;
-            string line = Console.ReadLine();
-            try
+           // Console.WriteLine("Please enter the level: ");
+           // int lvl = 0;
+            //string line = Console.ReadLine();
+           /* try
             {
                 lvl = Int32.Parse(line);
             }
             catch (FormatException)
             {
                 Console.WriteLine("\"{0}\" is not an integer! Performing one scan on one level!", line);
-            }
+            }*/
             // reading the html response from the target
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
             try
