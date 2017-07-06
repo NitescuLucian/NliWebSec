@@ -95,9 +95,45 @@ namespace NliWebSec
                         Console.Write((int)response2.StatusCode);
                     }
                 }
-                
                 Console.WriteLine();
                 Console.ReadLine();
+            }
+            //block - keep it to make a function
+            for (int i = 0; i < mytargets.Count(); i++)
+            {
+                string testfin = ".txt";
+                string urlcha = "example.com";
+                if (mytargets[i].EndsWith("/"))
+                {
+                    urlcha = mytargets[i];
+                    urlcha = urlcha.Remove(urlcha.Length - 1);
+                    urlcha = urlcha + testfin;
+                }
+                else
+                {
+                    urlcha = mytargets[i] + testfin;
+                }
+                Console.WriteLine(urlcha + " ");
+                HttpWebRequest request1 = (HttpWebRequest)WebRequest.Create(urlcha);
+                request1.Timeout = 400;
+                if (request1 != null)
+                {
+                    try
+                    {
+                        response2 = (HttpWebResponse)request1.GetResponse();
+                    }
+                    catch (System.Net.WebException ex)
+                    {
+                        Debug.WriteLine("Exception Message: " + ex.Message);
+                    }
+                    if (response2 != null)
+                    {
+                        Console.Write((int)response2.StatusCode);
+                    }
+                }
+                Console.WriteLine();
+                Console.ReadLine();
+                // end of block
             }
         }
     }
