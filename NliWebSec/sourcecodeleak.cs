@@ -13,14 +13,14 @@ namespace NliWebSec
     class sourcecodeleak
     {
         //the function
-        public static void stringator(string baseurl, string testaddition)
+        public static void stringator (string baseurl, string testaddition, List<string> restatus)
         {
             HttpWebResponse response2 = null;
             string testfin = testaddition;
             string urlcha = baseurl + testfin;
             Console.WriteLine(urlcha + " ");
             HttpWebRequest request1 = (HttpWebRequest)WebRequest.Create(urlcha);
-            request1.Timeout = 800;
+            request1.Timeout = 1000;
             if (request1 != null)
             {
                 try
@@ -34,10 +34,11 @@ namespace NliWebSec
                 if (response2 != null)
                 {
                     Console.Write((int)response2.StatusCode);
+                    restatus.Add("URL: " + urlcha + " HTTP Status Code:" + (int)response2.StatusCode);
                 }
             }
             Console.WriteLine();
-            Console.ReadLine();
+            //Console.ReadLine();
         }
 
         static void Main(string[] args)
@@ -95,7 +96,7 @@ namespace NliWebSec
             {
                 Console.WriteLine(mytargets[i] + " ");
                 HttpWebRequest request1 = (HttpWebRequest)WebRequest.Create(mytargets[i]);
-                request1.Timeout = 800;
+                request1.Timeout = 1000;
                 if (request1 != null)
                 {
                     try
@@ -112,7 +113,7 @@ namespace NliWebSec
                     }
                 }
                 Console.WriteLine();
-                Console.ReadLine();
+                //Console.ReadLine();
             }
             //here I will read several files and put them in a string array for further tests
             string line;
@@ -127,16 +128,22 @@ namespace NliWebSec
             file.Close();
             // end of read
             int testno = 0;
+            List<string> restatus = new List<string>();
             for (int j = 0; j < urlman.Count(); j++)
             {
                 for (int i = 0; i < mytargets.Count(); i++)
                 {
                     string kill = urlman[j];
-                    stringator(mytargets[i], kill);
+                    stringator(mytargets[i], kill, restatus);
                     testno++;
                 }
             }
+            restatus.ToArray();
             Console.WriteLine("All tests have been performed. Count: " + testno + ". ");
+            for (int j = 0; j < restatus.Count(); j++)
+            {
+                Console.WriteLine(restatus[j]);
+            }
         }
     }
 }
